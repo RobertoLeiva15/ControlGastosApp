@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Estilo para todos los campos de texto: bordes redondeados y naranja al escribir -->
+    <style name="Campo" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="boxCornerRadiusTopStart">14dp</item>
+        <item name="boxCornerRadiusTopEnd">14dp</item>
+        <item name="boxCornerRadiusBottomStart">14dp</item>
+        <item name="boxCornerRadiusBottomEnd">14dp</item>
+        <item name="boxStrokeColor">@color/naranja</item>
+        <item name="hintTextColor">@color/naranja</item>
+    </style>
+
+    <!-- Estilo para los botones grandes con degradado -->
+    <style name="BotonPrincipal">
+        <item name="android:background">@drawable/fondo_boton</item>
+        <item name="android:textColor">@color/blanco</item>
+        <item name="android:textSize">17sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:textAllCaps">false</item>
+    </style>
+</resources>

@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fondos (tema claro) -->
+    <color name="fondo">#FFF5F6FA</color>
+    <color name="superficie">#FFFFFFFF</color>
+    <color name="superficie_alta">#FFEEF0F5</color>
+    <color name="borde">#FFE2E6EE</color>
+
+    <!-- Colores de marca: naranja fuego, rojo y ámbar -->
+    <color name="naranja">#FFFF6B1A</color>
+    <color name="naranja_oscuro">#FFE8430A</color>
+    <color name="rojo_fuego">#FFD32F2F</color>
+    <color name="ambar">#FFFFB300</color>
+
+    <!-- Ingresos y egresos (más oscuros para que se lean sobre blanco) -->
+    <color name="verde_ingreso">#FF12B76A</color>
+    <color name="rojo_egreso">#FFE53935</color>
+    <color name="verde_suave">#2612B76A</color>
+    <color name="rojo_suave">#26E53935</color>
+    <color name="ambar_suave">#33FFB300</color>
+
+    <!-- Textos -->
+    <color name="texto">#FF1A1F29</color>
+    <color name="texto_secundario">#FF6B7280</color>
+    <color name="blanco">#FFFFFFFF</color>
+    <color name="negro">#FF000000</color>
+</resources>

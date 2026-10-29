@@ -1,0 +1,27 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <!-- Tema claro de Material 3, con nuestros colores -->
+    <style name="Base.Theme.ControlGastosApp" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/naranja</item>
+        <item name="colorOnPrimary">@color/blanco</item>
+        <item name="colorPrimaryContainer">@color/naranja_oscuro</item>
+        <item name="colorOnPrimaryContainer">@color/blanco</item>
+        <item name="colorSecondary">@color/ambar</item>
+        <item name="colorOnSecondary">@color/negro</item>
+        <!-- Color de lo "seleccionado" (categorías y botones Gasto/Ingreso) -->
+        <item name="colorSecondaryContainer">#FFFFE0CC</item>
+        <item name="colorOnSecondaryContainer">@color/naranja_oscuro</item>
+        <item name="colorError">@color/rojo_egreso</item>
+
+        <item name="android:colorBackground">@color/fondo</item>
+        <item name="android:windowBackground">@color/fondo</item>
+        <item name="colorSurface">@color/superficie</item>
+        <item name="colorSurfaceContainer">@color/superficie</item>
+        <item name="colorSurfaceContainerHigh">@color/superficie_alta</item>
+        <item name="colorOnSurface">@color/texto</item>
+        <item name="colorOnSurfaceVariant">@color/texto_secundario</item>
+        <item name="colorOutline">@color/borde</item>
+    </style>
+
+    <style name="Theme.ControlGastosApp" parent="Base.Theme.ControlGastosApp" />
+</resources>
