@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -37,8 +38,14 @@ android {
 }
 
 dependencies {
+    // Nuestra librería de Kotlin (instalada con mvn install)
     implementation("edu.umg.controlgastos:control-gastos:1.0.0")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
+
+    // Room: base de datos local SQLite
+    implementation("androidx.room:room-runtime:2.8.5")
+    implementation("androidx.room:room-ktx:2.8.5")
+    ksp("androidx.room:room-compiler:2.8.5")
 
     implementation(libs.androidx.activity.ktx)
     implementation(libs.androidx.annotation)

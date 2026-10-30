@@ -3,10 +3,10 @@ package edu.umg.controlgastos.app
 import android.app.Application
 
 // Application se crea ANTES que cualquier pantalla.
-// Aquí aplicamos el tema guardado para que la app abra directo en claro u oscuro.
 class AplicacionGastos : Application() {
     override fun onCreate() {
         super.onCreate()
-        Tema.aplicarGuardado(this)
+        Tema.aplicarGuardado(this)  // modo claro u oscuro guardado
+        Contenedor.iniciar(this)    // abre la base de datos Room
     }
 }
