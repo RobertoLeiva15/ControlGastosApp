@@ -38,8 +38,8 @@ android {
 }
 
 dependencies {
-    // Nuestra librería de Kotlin (instalada con mvn install)
-    implementation("edu.umg.controlgastos:control-gastos:1.0.0")
+    // Nuestra librería, incluida como .jar para que el proyecto compile en cualquier computadora
+    implementation(files("libs/control-gastos-1.0.0.jar"))
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
 
     // Room: base de datos local SQLite
