@@ -3,6 +3,7 @@ package edu.umg.controlgastos.app
 import android.app.DatePickerDialog
 import android.os.Bundle
 import android.view.View
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -20,11 +21,14 @@ import edu.umg.controlgastos.servicio.mesDe
 import kotlinx.coroutines.launch
 import java.util.Locale
 
+// Sirve para CREAR un movimiento nuevo o para EDITAR uno existente
+// (si recibe un id en el Intent, entra en modo edición)
 class NuevoMovimientoActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNuevoMovimientoBinding
     private var tipo = TipoMovimiento.EGRESO
     private var fechaElegida = fechaDeHoy()
+    private var movimientoEditando: Movimiento? = null // null = es nuevo
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,7 +37,6 @@ class NuevoMovimientoActivity : AppCompatActivity() {
         setContentView(binding.root)
         binding.root.respetarBarrasDelSistema()
 
-        // Inicio nos manda si es INGRESO o EGRESO dentro del Intent ("extra")
         tipo = intent.getStringExtra(EXTRA_TIPO)
             ?.let { TipoMovimiento.valueOf(it) }
             ?: TipoMovimiento.EGRESO
@@ -49,19 +52,56 @@ class NuevoMovimientoActivity : AppCompatActivity() {
             }
         }
         cambiarTipo(tipo)
+        mostrarFecha()
 
-        binding.tvFecha.text = "📅  ${fechaBonita(fechaElegida)}"
         binding.tvFecha.setOnClickListener { elegirFecha() }
         binding.tvVolver.setOnClickListener { finish() }
         binding.btnGuardar.setOnClickListener { guardar() }
+
+        // ¿Nos mandaron un id? Entonces cargamos ese movimiento para editarlo
+        val idEditar = intent.getIntExtra(EXTRA_ID, -1)
+        if (idEditar != -1) {
+            lifecycleScope.launch {
+                val movimiento = Contenedor.finanzas.buscarPorId(idEditar)
+                if (movimiento != null) cargarParaEditar(movimiento)
+            }
+        }
+    }
+
+    // Llena el formulario con los datos del movimiento que se va a editar
+    private fun cargarParaEditar(m: Movimiento) {
+        movimientoEditando = m
+        fechaElegida = m.fecha
+        mostrarFecha()
+
+        binding.grupoTipo.check(
+            if (m.tipo == TipoMovimiento.INGRESO) R.id.btnTipoIngreso else R.id.btnTipoGasto
+        )
+        cambiarTipo(m.tipo)
+
+        // Marca el chip de su categoría
+        for (i in 0 until binding.grupoCategorias.childCount) {
+            val chip = binding.grupoCategorias.getChildAt(i) as Chip
+            if (chip.tag == m.categoria) chip.isChecked = true
+        }
+
+        binding.etMonto.setText(String.format(Locale.US, "%.2f", m.monto))
+        binding.etDescripcion.setText(m.descripcion)
     }
 
     // Cambia textos, colores y categorías según sea gasto o ingreso
     private fun cambiarTipo(nuevo: TipoMovimiento) {
         tipo = nuevo
         val esIngreso = tipo == TipoMovimiento.INGRESO
-        binding.tvTitulo.text = if (esIngreso) "Nuevo ingreso" else "Nuevo gasto"
-        binding.btnGuardar.text = if (esIngreso) "Guardar ingreso" else "Guardar gasto"
+        val editando = movimientoEditando != null
+
+        binding.tvTitulo.text =
+            (if (editando) "Editar " else "Nuevo ") + (if (esIngreso) "ingreso" else "gasto")
+        binding.btnGuardar.text = when {
+            editando -> "Guardar cambios"
+            esIngreso -> "Guardar ingreso"
+            else -> "Guardar gasto"
+        }
         binding.btnGuardar.setBackgroundResource(
             if (esIngreso) R.drawable.fondo_boton_ingreso else R.drawable.fondo_boton
         )
@@ -91,6 +131,10 @@ class NuevoMovimientoActivity : AppCompatActivity() {
         return binding.grupoCategorias.findViewById<Chip>(id)?.tag as? Categoria
     }
 
+    private fun mostrarFecha() {
+        binding.tvFecha.text = "📅  ${fechaBonita(fechaElegida)}"
+    }
+
     // Calendario para elegir la fecha (no deja elegir fechas futuras)
     private fun elegirFecha() {
         val partes = fechaElegida.split("-").map { it.toInt() }
@@ -98,7 +142,7 @@ class NuevoMovimientoActivity : AppCompatActivity() {
             this,
             { _, anio, mes, dia ->
                 fechaElegida = String.format(Locale.US, "%04d-%02d-%02d", anio, mes + 1, dia)
-                binding.tvFecha.text = "📅  ${fechaBonita(fechaElegida)}"
+                mostrarFecha()
             },
             partes[0], partes[1] - 1, partes[2] // en DatePicker enero es 0
         )
@@ -113,7 +157,7 @@ class NuevoMovimientoActivity : AppCompatActivity() {
             return
         }
 
-        val movimiento = Movimiento(
+        val datos = Movimiento(
             descripcion = binding.etDescripcion.text.toString().trim(),
             monto = binding.etMonto.text.toString().toDoubleOrNull() ?: 0.0,
             tipo = tipo,
@@ -123,16 +167,28 @@ class NuevoMovimientoActivity : AppCompatActivity() {
 
         binding.btnGuardar.isEnabled = false // evita guardar dos veces por doble toque
         lifecycleScope.launch {
-            // registrar valida y guarda; la librería decide si hay error
-            val resultado = Contenedor.finanzas.registrar(movimiento)
-            binding.btnGuardar.isEnabled = true
-
-            val error = resultado.error
-            if (error != null) {
-                mostrarError(error)
+            val editando = movimientoEditando
+            if (editando != null) {
+                // MODO EDITAR: mismo id, datos nuevos
+                val error = Contenedor.finanzas.actualizar(datos.copy(id = editando.id))
+                binding.btnGuardar.isEnabled = true
+                if (error != null) {
+                    mostrarError(error)
+                } else {
+                    Toast.makeText(this@NuevoMovimientoActivity, "✏️ Cambios guardados", Toast.LENGTH_SHORT).show()
+                    finish()
+                }
             } else {
-                val resumen = Contenedor.finanzas.resumenDelMes(mesDe(fechaElegida))
-                mostrarExito(resultado.versiculo, resumen.nivel)
+                // MODO NUEVO: registrar valida, guarda y devuelve un versículo
+                val resultado = Contenedor.finanzas.registrar(datos)
+                binding.btnGuardar.isEnabled = true
+                val error = resultado.error
+                if (error != null) {
+                    mostrarError(error)
+                } else {
+                    val resumen = Contenedor.finanzas.resumenDelMes(mesDe(fechaElegida))
+                    mostrarExito(resultado.versiculo, resumen.nivel)
+                }
             }
         }
     }
@@ -154,11 +210,12 @@ class NuevoMovimientoActivity : AppCompatActivity() {
             .setTitle(if (tipo == TipoMovimiento.INGRESO) "✅ ¡Ingreso guardado!" else "✅ ¡Gasto guardado!")
             .setMessage(mensaje)
             .setCancelable(false)
-            .setPositiveButton("Amén 🙏") { _, _ -> finish() } // regresa a Inicio
+            .setPositiveButton("Amén 🙏") { _, _ -> finish() }
             .show()
     }
 
     companion object {
         const val EXTRA_TIPO = "tipo"
+        const val EXTRA_ID = "id" // si viene, es modo edición
     }
 }

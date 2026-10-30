@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Solo los colores que CAMBIAN en modo oscuro;
+         los demás se toman del colors.xml normal -->
+    <color name="fondo">#FF0E1116</color>
+    <color name="superficie">#FF1A1F29</color>
+    <color name="superficie_alta">#FF252B37</color>
+    <color name="borde">#FF2E3542</color>
+    <color name="login_arriba">#FF3A1A08</color>
+    <color name="login_medio">#FF15110F</color>
+
+    <color name="ambar">#FFFFC107</color>
+    <color name="verde_ingreso">#FF2EE59D</color>
+    <color name="rojo_egreso">#FFFF5252</color>
+    <color name="verde_suave">#332EE59D</color>
+    <color name="rojo_suave">#33FF5252</color>
+    <color name="ambar_suave">#33FFC107</color>
+
+    <color name="texto">#FFF5F7FA</color>
+    <color name="texto_secundario">#FF9AA4B2</color>
+</resources>

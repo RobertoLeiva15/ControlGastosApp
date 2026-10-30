@@ -157,6 +157,25 @@
             </LinearLayout>
         </LinearLayout>
 
+        <!-- Buscador: la X (clear_text) borra lo escrito -->
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/tilBuscar"
+            style="@style/Campo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="14dp"
+            android:hint="🔍 Buscar (ej. almuerzo, comida)"
+            app:endIconMode="clear_text">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/etBuscar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:maxLines="1" />
+        </com.google.android.material.textfield.TextInputLayout>
+
         <!-- Filtro: Todos / Ingresos / Gastos -->
         <com.google.android.material.chip.ChipGroup
             android:id="@+id/grupoFiltro"

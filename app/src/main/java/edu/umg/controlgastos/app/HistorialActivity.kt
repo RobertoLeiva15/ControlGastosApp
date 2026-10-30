@@ -1,5 +1,6 @@
 package edu.umg.controlgastos.app
 
+import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.view.View
@@ -7,6 +8,7 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.core.widget.doAfterTextChanged
 import androidx.lifecycle.lifecycleScope
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import edu.umg.controlgastos.app.databinding.ActivityHistorialBinding
@@ -24,6 +26,7 @@ class HistorialActivity : AppCompatActivity() {
     private lateinit var binding: ActivityHistorialBinding
     private var mesVisible = mesActual()
     private var filtro: TipoMovimiento? = null // null = mostrar todos
+    private var textoBusqueda = ""
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,7 +42,6 @@ class HistorialActivity : AppCompatActivity() {
         binding.btnMesAnterior.setOnClickListener { cambiarMes(-1) }
         binding.btnMesSiguiente.setOnClickListener { cambiarMes(+1) }
 
-        // Cuando cambia el chip elegido, cambia el filtro
         binding.grupoFiltro.setOnCheckedStateChangeListener { _, idsMarcados ->
             filtro = when (idsMarcados.firstOrNull()) {
                 R.id.chipIngresos -> TipoMovimiento.INGRESO
@@ -49,6 +51,16 @@ class HistorialActivity : AppCompatActivity() {
             refrescar()
         }
 
+        // Cada vez que escribes una letra, se vuelve a filtrar la lista
+        binding.etBuscar.doAfterTextChanged { texto ->
+            textoBusqueda = texto?.toString()?.trim() ?: ""
+            refrescar()
+        }
+    }
+
+    // onResume también se ejecuta al regresar de "Editar", así la lista se actualiza
+    override fun onResume() {
+        super.onResume()
         refrescar()
     }
 
@@ -61,8 +73,15 @@ class HistorialActivity : AppCompatActivity() {
         lifecycleScope.launch {
             val finanzas = Contenedor.finanzas
             val resumen = finanzas.resumenDelMes(mesVisible)
-            val todos = finanzas.movimientosDelMes(mesVisible)
-            val lista = if (filtro == null) todos else todos.filter { it.tipo == filtro }
+
+            // 1) Filtra por tipo  2) Filtra por texto (en descripción o categoría, sin importar mayúsculas)
+            val lista = finanzas.movimientosDelMes(mesVisible)
+                .filter { filtro == null || it.tipo == filtro }
+                .filter {
+                    textoBusqueda.isEmpty() ||
+                            it.descripcion.contains(textoBusqueda, ignoreCase = true) ||
+                            it.categoria.nombreVisible.contains(textoBusqueda, ignoreCase = true)
+                }
 
             binding.tvMes.text = nombreDelMes(mesVisible)
             binding.tvIngresos.text = formatearQuetzales(resumen.ingresos)
@@ -70,7 +89,10 @@ class HistorialActivity : AppCompatActivity() {
             binding.tvSaldo.text = formatearQuetzales(resumen.saldo)
             binding.tvSaldo.setTextColor(colorDeSaldo(resumen.saldo))
             binding.tvCantidad.text =
-                if (lista.isEmpty()) "" else "${lista.size} movimiento(s) · Toca uno para eliminarlo"
+                if (lista.isEmpty()) "" else "${lista.size} movimiento(s) · Toca uno para editar o eliminar"
+            binding.tvSinMovimientos.text =
+                if (textoBusqueda.isEmpty()) "No hay movimientos aquí 🙂"
+                else "No se encontró «$textoBusqueda» 🔎"
 
             mostrarMovimientos(lista)
             mostrarMeses(finanzas.mesesConMovimientos())
@@ -86,7 +108,7 @@ class HistorialActivity : AppCompatActivity() {
         for (movimiento in lista) {
             val fila = ItemMovimientoBinding.inflate(layoutInflater, binding.contenedorMovimientos, false)
             fila.mostrar(movimiento)
-            fila.root.setOnClickListener { confirmarEliminar(movimiento) }
+            fila.root.setOnClickListener { mostrarOpciones(movimiento) }
             binding.contenedorMovimientos.addView(fila.root)
         }
     }
@@ -114,6 +136,26 @@ class HistorialActivity : AppCompatActivity() {
             }
             binding.contenedorMeses.addView(fila.root)
         }
+    }
+
+    // Al tocar un movimiento: elegir Editar o Eliminar
+    private fun mostrarOpciones(m: Movimiento) {
+        MaterialAlertDialogBuilder(this)
+            .setTitle("${m.categoria.emoji()} ${m.descripcion}")
+            .setItems(arrayOf("✏️  Editar", "🗑  Eliminar")) { _, opcion ->
+                when (opcion) {
+                    0 -> editar(m)
+                    1 -> confirmarEliminar(m)
+                }
+            }
+            .show()
+    }
+
+    // Abre la misma pantalla de "Nuevo movimiento", pero mandándole el id para editar
+    private fun editar(m: Movimiento) {
+        val intent = Intent(this, NuevoMovimientoActivity::class.java)
+        intent.putExtra(NuevoMovimientoActivity.EXTRA_ID, m.id)
+        startActivity(intent)
     }
 
     private fun confirmarEliminar(m: Movimiento) {

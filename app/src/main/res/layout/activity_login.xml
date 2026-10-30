@@ -14,18 +14,17 @@
         android:paddingHorizontal="24dp"
         android:paddingVertical="32dp">
 
-        <!-- Logo: círculo con degradado y una Q de quetzal -->
-        <TextView
+        <!-- Logo: billetera dentro del círculo con degradado -->
+        <ImageView
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="16dp"
             android:background="@drawable/fondo_logo"
+            android:contentDescription="Logo"
             android:elevation="10dp"
-            android:gravity="center"
-            android:text="Q"
-            android:textColor="@color/blanco"
-            android:textSize="52sp"
-            android:textStyle="bold" />
+            android:padding="24dp"
+            android:src="@drawable/ic_billetera"
+            app:tint="@color/blanco" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -39,7 +38,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Fiel en lo poco, fiel en lo mucho"
+            android:text="Control de ingresos y gastos"
             android:textColor="@color/texto_secundario"
             android:textSize="15sp"
             android:textStyle="italic" />

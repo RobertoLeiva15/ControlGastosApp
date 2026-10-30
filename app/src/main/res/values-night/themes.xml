@@ -1,16 +1,15 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Tema claro de Material 3, con nuestros colores -->
-    <style name="Base.Theme.ControlGastosApp" parent="Theme.Material3.Light.NoActionBar">
+    <!-- Tema OSCURO: se usa cuando el modo nocturno está activo -->
+    <style name="Base.Theme.ControlGastosApp" parent="Theme.Material3.Dark.NoActionBar">
         <item name="colorPrimary">@color/naranja</item>
         <item name="colorOnPrimary">@color/blanco</item>
         <item name="colorPrimaryContainer">@color/naranja_oscuro</item>
         <item name="colorOnPrimaryContainer">@color/blanco</item>
         <item name="colorSecondary">@color/ambar</item>
         <item name="colorOnSecondary">@color/negro</item>
-        <!-- Color de lo "seleccionado" (categorías y botones Gasto/Ingreso) -->
-        <item name="colorSecondaryContainer">#FFFFE0CC</item>
-        <item name="colorOnSecondaryContainer">@color/naranja_oscuro</item>
+        <item name="colorSecondaryContainer">#FF4A2A14</item>
+        <item name="colorOnSecondaryContainer">#FFFFB088</item>
         <item name="colorError">@color/rojo_egreso</item>
 
         <item name="android:colorBackground">@color/fondo</item>
